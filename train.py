@@ -25,7 +25,7 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 import config
-from dataset import CUDAPrefetcher
+from dataset import CUDAPrefetcher, CPUPrefetcher
 from dataset import TrainValidImageDataset, TestImageDataset
 from model import FSRCNN
 
@@ -34,7 +34,7 @@ def main():
     # Initialize training to generate network evaluation indicators
     best_psnr = 0.0
 
-    train_prefetcher, valid_prefetcher, test_prefetcher = load_dataset()
+    train_prefetcher, valid_prefetcher, _ = load_dataset()
     print("Load train dataset and valid dataset successfully.")
 
     model = build_model()
@@ -81,8 +81,8 @@ def main():
 
     for epoch in range(config.start_epoch, config.epochs):
         train(model, train_prefetcher, psnr_criterion, pixel_criterion, optimizer, epoch, scaler, writer)
-        _ = validate(model, valid_prefetcher, psnr_criterion, epoch, writer, "Valid")
-        psnr = validate(model, test_prefetcher, psnr_criterion, epoch, writer, "Test")
+        psnr = validate(model, valid_prefetcher, psnr_criterion, epoch, writer, "Valid")
+        # psnr = validate(model, test_prefetcher, psnr_criterion, epoch, writer, "Test")
         print("\n")
 
         # Automatically save the model with the highest index
@@ -100,11 +100,11 @@ def main():
             shutil.copyfile(os.path.join(samples_dir, f"epoch_{epoch + 1}.pth.tar"), os.path.join(results_dir, "last.pth.tar"))
 
 
-def load_dataset() -> [CUDAPrefetcher, CUDAPrefetcher, CUDAPrefetcher]:
+def load_dataset():
     # Load train, test and valid datasets
     train_datasets = TrainValidImageDataset(config.train_image_dir, config.image_size, config.upscale_factor, "Train")
     valid_datasets = TrainValidImageDataset(config.valid_image_dir, config.image_size, config.upscale_factor, "Valid")
-    test_datasets = TestImageDataset(config.test_lr_image_dir, config.test_hr_image_dir, config.upscale_factor)
+    # test_datasets = TestImageDataset(config.test_lr_image_dir, config.test_hr_image_dir, config.upscale_factor)
 
     # Generator all dataloader
     train_dataloader = DataLoader(train_datasets,
@@ -121,20 +121,20 @@ def load_dataset() -> [CUDAPrefetcher, CUDAPrefetcher, CUDAPrefetcher]:
                                   pin_memory=True,
                                   drop_last=False,
                                   persistent_workers=True)
-    test_dataloader = DataLoader(test_datasets,
-                                 batch_size=1,
-                                 shuffle=False,
-                                 num_workers=1,
-                                 pin_memory=True,
-                                 drop_last=False,
-                                 persistent_workers=False)
+    # test_dataloader = DataLoader(test_datasets,
+    #                              batch_size=1,
+    #                              shuffle=False,
+    #                              num_workers=1,
+    #                              pin_memory=True,
+    #                              drop_last=False,
+    #                              persistent_workers=False)
 
     # Place all data on the preprocessing data loader
-    train_prefetcher = CUDAPrefetcher(train_dataloader, config.device)
-    valid_prefetcher = CUDAPrefetcher(valid_dataloader, config.device)
-    test_prefetcher = CUDAPrefetcher(test_dataloader, config.device)
+    train_prefetcher = CUDAPrefetcher(train_dataloader)
+    valid_prefetcher = CUDAPrefetcher(valid_dataloader)
+    # test_prefetcher = CUDAPrefetcher(test_dataloader, config.device)
 
-    return train_prefetcher, valid_prefetcher, test_prefetcher
+    return train_prefetcher, valid_prefetcher, None
 
 
 def build_model() -> nn.Module:

@@ -22,7 +22,7 @@ random.seed(0)
 torch.manual_seed(0)
 np.random.seed(0)
 # Use GPU for training by default
-device = torch.device("cuda", 0)
+device = torch.device("cpu") if not torch.cuda.is_available() else torch.device("cuda",0)
 # Turning on when the image size does not change during training can speed up training
 cudnn.benchmark = True
 # Image magnification factor
@@ -34,12 +34,12 @@ exp_name = "fsrcnn_x2"
 
 if mode == "train":
     # Dataset
-    train_image_dir = f"data/T91/FSRCNN/train"
-    valid_image_dir = f"data/T91/FSRCNN/valid"
-    test_lr_image_dir = f"data/Set5/LRbicx{upscale_factor}"
-    test_hr_image_dir = f"data/Set5/GTmod12"
+    train_image_dir = f"data/FSRCNN/train"
+    valid_image_dir = f"data/FSRCNN/valid"
+    # test_lr_image_dir = f"data/Set5/LRbicx{upscale_factor}"
+    # test_hr_image_dir = f"data/Set5/GTmod12"
 
-    image_size = 20
+    image_size = 120
     batch_size = 16
     num_workers = 4
 
