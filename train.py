@@ -130,8 +130,8 @@ def load_dataset():
     #                              persistent_workers=False)
 
     # Place all data on the preprocessing data loader
-    train_prefetcher = CUDAPrefetcher(train_dataloader)
-    valid_prefetcher = CUDAPrefetcher(valid_dataloader)
+    train_prefetcher = CPUPrefetcher(train_dataloader)
+    valid_prefetcher = CPUPrefetcher(valid_dataloader)
     # test_prefetcher = CUDAPrefetcher(test_dataloader, config.device)
 
     return train_prefetcher, valid_prefetcher, None

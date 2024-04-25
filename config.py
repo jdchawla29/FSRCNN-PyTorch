@@ -28,7 +28,7 @@ cudnn.benchmark = True
 # Image magnification factor
 upscale_factor = 2
 # Current configuration parameter method
-mode = "train"
+mode = "valid"
 # Experiment name, easy to save weights and log files
 exp_name = "fsrcnn_x2"
 
@@ -36,19 +36,19 @@ if mode == "train":
     # Dataset
     train_image_dir = f"data/FSRCNN/train"
     valid_image_dir = f"data/FSRCNN/valid"
-    # test_lr_image_dir = f"data/Set5/LRbicx{upscale_factor}"
-    # test_hr_image_dir = f"data/Set5/GTmod12"
+    test_lr_image_dir = f"data/FSRCNN/test/lr"
+    test_hr_image_dir = f"data/FSRCNN/test/hr"
 
     image_size = 120
-    batch_size = 16
-    num_workers = 4
+    batch_size = 128
+    num_workers = 8
 
     # Incremental training and migration training
     start_epoch = 0
     resume = ""
 
     # Total number of epochs
-    epochs = 3000
+    epochs = 1
 
     # SGD optimizer parameter
     model_lr = 1e-3
@@ -60,8 +60,8 @@ if mode == "train":
 
 if mode == "valid":
     # Test data address
-    lr_dir = f"data/Set5/LRbicx{upscale_factor}"
+    lr_dir = f"data/FSRCNN/test/lr"
     sr_dir = f"results/test/{exp_name}"
-    hr_dir = f"data/Set5/GTmod12"
+    hr_dir = f"data/FSRCNN/test/hr"
 
     model_path = f"results/{exp_name}/best.pth.tar"

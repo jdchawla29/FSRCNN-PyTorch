@@ -54,7 +54,7 @@ def main() -> None:
 
     for index in range(total_files):
         lr_image_path = os.path.join(config.lr_dir, file_names[index])
-        sr_image_path = os.path.join(config.sr_dir, file_names[index])
+        sr_image_path = os.path.join(config.sr_dir, file_names[index]) 
         hr_image_path = os.path.join(config.hr_dir, file_names[index])
 
         print(f"Processing `{os.path.abspath(hr_image_path)}`...")
